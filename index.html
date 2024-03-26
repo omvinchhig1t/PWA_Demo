@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Demo</title>
+    <link rel="manifest" crossorigin="use-credentials" href="site.webmanifest">
+</head>
+<body>
+    "Hello World"
+    <script>
+        if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){
+        navigator.serviceWorker.register('/sw.js',{scope:"/"}).then(function(registration) {
+            console.log("ServiceWorker registration successful with scope:", registration.scope);
+        }, function(err){
+            console.log("ServiceWorker registration failed", err);
+        });
+    })
+}
+
+var CACHE_NAME = 'my-site-cache-v1';
+    var urlsToCache = [
+    '/',
+    'index.html',
+    /* '/styles/main.css',
+    '/script/main.js' */
+    ];
+    self.addEventListener('install', function (event) {
+        // Perform install steps
+        event.waitUntil(
+            caches.open(CACHE_NAME)
+                .then(function (cache) {
+                    console.log('Opened cache');
+                    return cache.addAll(urlsToCache);
+                })
+        )
+    });
+
+    self.addEventListener('fetch', function(event) {
+        event.respondWith(
+          caches.match(event.request)
+            .then(function(response) {
+              // Cache hit - return response
+              if (response) {
+                return response;
+              }
+              return fetch(event.request);
+            }
+          )
+        );
+      });
+    </script>
+</body>
+</html>
